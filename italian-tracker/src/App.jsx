@@ -47,7 +47,7 @@ const weekData = [
     { short:"essere auxiliary", detail:"Babbel + workbook · Anki 20 words", target:90 },
     { short:"Irregular past", detail:"CBT Ep.12 · Anki · Write sentences", target:75 },
     { short:"Past tense review", detail:"Babbel + workbook Ch.10 · Anki 20 words", target:90 },
-    { short:"TEST 5 + iTalki", detail:"Self-test: 20 passato prossimo sentences (essere vs avere). Then 1hr iTalki session.", target:90, type:"test" },
+    { short:"TEST 5 + iTalki", detail:"Self-test: 20 passato prossimo sentences (essere vs avere). Write 10 sentences using the week's grammar. Self-correct.", target:90, type:"test" },
     { short:"Rest + Anki", detail:"Anki review only", target:20, type:"rest" },
   ]},
   { phase:3, label:"Week 6", focus:"Intermediate", dateRange:"Jul 1 – Jul 7", days:[
@@ -56,7 +56,7 @@ const weekData = [
     { short:"PP vs Imperfetto", detail:"Babbel + workbook · Anki 20 words", target:90 },
     { short:"Contrast drills", detail:"CBT Ep.14 · Anki · Write sentences", target:75 },
     { short:"Past contrast", detail:"Babbel + workbook Ch.12 · Anki 20 words", target:90 },
-    { short:"TEST 6 + iTalki", detail:"Self-test: 15 sentences choosing between PP and imperfetto. Then 1hr iTalki session.", target:90, type:"test" },
+    { short:"TEST 6 + iTalki", detail:"Self-test: 15 sentences choosing between PP and imperfetto. Write 10 sentences using the week's grammar. Self-correct.", target:90, type:"test" },
     { short:"Rest + Anki", detail:"Anki review only", target:20, type:"rest" },
   ]},
   { phase:3, label:"Week 7", focus:"Intermediate", dateRange:"Jul 8 – Jul 14", days:[
@@ -65,7 +65,7 @@ const weekData = [
     { short:"Combined pronouns", detail:"Babbel + workbook · Anki 20 words", target:90 },
     { short:"glielo drills", detail:"CBT Ep.16 · Anki · Write sentences", target:75 },
     { short:"Future + pronouns", detail:"Babbel + workbook Ch.14 · Anki 20 words", target:90 },
-    { short:"TEST 7 + iTalki", detail:"Self-test: futuro + all pronoun types. 20 sentences. Then 1hr iTalki session.", target:90, type:"test" },
+    { short:"TEST 7 + iTalki", detail:"Self-test: futuro + all pronoun types. 20 sentences. Write 10 sentences using the week's grammar. Self-correct.", target:90, type:"test" },
     { short:"Rest + Anki", detail:"Anki review only", target:20, type:"rest" },
   ]},
   { phase:3, label:"Week 8", focus:"Intermediate", dateRange:"Jul 15 – Jul 21", days:[
@@ -83,7 +83,7 @@ const weekData = [
     { short:"Mock 1 review", detail:"Go through every wrong answer · Targeted drills", target:90 },
     { short:"MOCK EXAM 2", detail:"60 MC timed 60min · Note score vs mock 1", target:60, type:"mock" },
     { short:"Mock 2 review", detail:"Weak spots only · Anki focus", target:75 },
-    { short:"iTalki session 5", detail:"Final timed speaking session · Push yourself", target:60 },
+    { short:"CBT podcast + sentence writing", detail:"CBT 2 episodes + write 15 sentences from memory", target:60 },
     { short:"Rest + Anki", detail:"Anki only · No heavy grammar", target:20, type:"rest" },
   ]},
   { phase:4, label:"Week 10", focus:"Exam Prep", dateRange:"Jul 29 – Aug 4", days:[
@@ -92,7 +92,7 @@ const weekData = [
     { short:"Mock 3 review", detail:"Weak spots only · Workbook targeted drills", target:75 },
     { short:"MOCK EXAM 4", detail:"60 MC timed 60min · Final benchmark", target:60, type:"mock" },
     { short:"Vocab top-up", detail:"Anki · Focus on words you keep missing", target:45 },
-    { short:"iTalki session 6", detail:"Final speaking polish · Free conversation", target:60 },
+    { short:"CBT podcast + sentence writing", detail:"CBT + write a short paragraph in Italian", target:60 },
     { short:"Rest + Anki", detail:"Anki only · Keep loose", target:20, type:"rest" },
   ]},
   { phase:4, label:"Week 11", focus:"Final Polish", dateRange:"Aug 5 – Aug 11", days:[
@@ -362,7 +362,7 @@ export default function App() {
           {[
             { label:"daily target", val:"90 min" },
             { label:"core tools", val:"Babbel · CBT · Anki" },
-            { label:"speaking wk 5+", val:"iTalki 2x/wk" },
+            { label:"grammar drills (free)", val:"onlineitalianclub.com" },
           ].map(({ label, val }) => (
             <div key={label} style={{ background:"#ffffff05", border:"1px solid #ffffff0e", borderRadius:10, padding:"12px 16px" }}>
               <div style={{ fontSize:10, color:"#e8e8e888", letterSpacing:2, textTransform:"uppercase", marginBottom:5 }}>{label}</div>
@@ -379,8 +379,8 @@ export default function App() {
               { label:"Babbel", url:"https://www.babbel.com", color:"#e94560" },
               { label:"Coffee Break Italian", url:"https://coffeebreaklanguages.com/coffeebreakitalian", color:"#53c0f0" },
               { label:"Anki", url:"https://apps.ankiweb.net", color:"#f5a623" },
-              { label:"iTalki", url:"https://www.italki.com", color:"#a8e063" },
-              { label:"Italian Grammar in Practice", url:"https://www.amazon.com/s?k=italian+grammar+in+practice+alma+edizioni", color:"#c084fc" },
+              { label:"Grammar exercises (free)", url:"https://onlineitalianclub.com/free-italian-exercises-and-resources/online-italian-course-beginner-level-a1/", color:"#a8e063" },
+              { label:"Vocab drills (free)", url:"https://lingua.com/italian/grammar/", color:"#c084fc" },
               { label:"NYU Placement Exam", url:"https://cas.nyu.edu/academic-programs/academic-success/placementexams.html", color:"#f472b6" },
             ].map(({ label, url, color }) => (
               <a key={label} href={url} target="_blank" rel="noopener noreferrer"
