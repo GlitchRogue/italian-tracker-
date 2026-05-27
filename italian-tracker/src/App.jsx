@@ -4,6 +4,7 @@ const STORAGE_KEY = "italian-tracker-v3";
 
 const DATES = ["May 27","May 28","May 29","May 30","May 31","Jun 1","Jun 2","Jun 3","Jun 4","Jun 5","Jun 6","Jun 7","Jun 8","Jun 9","Jun 10","Jun 11","Jun 12","Jun 13","Jun 14","Jun 15","Jun 16","Jun 17","Jun 18","Jun 19","Jun 20","Jun 21","Jun 22","Jun 23","Jun 24","Jun 25","Jun 26","Jun 27","Jun 28","Jun 29","Jun 30","Jul 1","Jul 2","Jul 3","Jul 4","Jul 5","Jul 6","Jul 7","Jul 8","Jul 9","Jul 10","Jul 11","Jul 12","Jul 13","Jul 14","Jul 15","Jul 16","Jul 17","Jul 18","Jul 19","Jul 20","Jul 21","Jul 22","Jul 23","Jul 24","Jul 25","Jul 26","Jul 27","Jul 28","Jul 29","Jul 30","Jul 31","Aug 1","Aug 2","Aug 3","Aug 4","Aug 5","Aug 6","Aug 7","Aug 8","Aug 9","Aug 10","Aug 11","Aug 12","Aug 13","Aug 14","Aug 15","Aug 16","Aug 17","Aug 18"];
 
+// day types: normal | test | mock | rest | exam-window
 const weekData = [
   { phase:1, label:"Week 1", focus:"Foundation", dateRange:"May 27 – Jun 2", days:[
     { short:"Articles", detail:"Babbel lesson 1 · Anki 20 words · CBT Ep.1", target:90 },
@@ -116,7 +117,10 @@ const weekData = [
 ];
 
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-const phaseColors = { 1:{accent:"#e94560"}, 2:{accent:"#53c0f0"}, 3:{accent:"#f5a623"}, 4:{accent:"#a8e063"}, 5:{accent:"#c084fc"} };
+const phaseColors = {
+  1:{accent:"#e94560"}, 2:{accent:"#53c0f0"}, 3:{accent:"#f5a623"},
+  4:{accent:"#a8e063"}, 5:{accent:"#c084fc"},
+};
 const typeStyles = {
   test:{ border:"#f5a62355", bg:"#f5a62308", label:"TEST", labelColor:"#f5a623" },
   mock:{ border:"#a8e06355", bg:"#a8e06308", label:"MOCK", labelColor:"#a8e063" },
@@ -126,9 +130,13 @@ const typeStyles = {
 
 function MinuteInput({ value, onChange, target }) {
   const [editing, setEditing] = useState(false);
-  const [tmp, setTmp] = useState(value || "");
+  const [tmp, setTmp] = useState(value||"");
+  const ref = useRef();
   if (editing) return (
-    <input type="number" min="0" max="999" value={tmp}
+    <input
+      ref={ref}
+      type="number" min="0" max="999"
+      value={tmp}
       style={{ width:"100%", background:"#ffffff10", border:"1px solid #ffffff30", borderRadius:4, color:"#e8e8e8", fontFamily:"inherit", fontSize:11, padding:"2px 4px", textAlign:"center" }}
       onChange={e => setTmp(e.target.value)}
       onBlur={() => { onChange(parseInt(tmp)||0); setEditing(false); }}
@@ -136,45 +144,46 @@ function MinuteInput({ value, onChange, target }) {
       autoFocus
     />
   );
-  const mins = value || 0;
+  const mins = value||0;
   const over = target > 0 && mins >= target;
   return (
-    <div onClick={() => { setTmp(value||""); setEditing(true); }}
-      style={{ cursor:"pointer", fontSize:10, color: over ? "#4caf50" : mins > 0 ? "#f5a623" : "#e8e8e830", textAlign:"center", padding:"2px 0" }}>
+    <div onClick={()=>{ setTmp(value||""); setEditing(true); }} style={{ cursor:"pointer", fontSize:10, color: over ? "#4caf50" : mins > 0 ? "#f5a623" : "#e8e8e830", textAlign:"center", padding:"2px 0" }}>
       {mins > 0 ? `${mins}m` : target > 0 ? `tap` : ""}
       {target > 0 && <span style={{ color:"#e8e8e820", fontSize:9 }}>/{target}</span>}
     </div>
   );
 }
 
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : { done:{}, mins:{} };
-  } catch(e) { return { done:{}, mins:{} }; }
-}
-
-function saveData(d) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {}
-}
-
-export default function App() {
-  const [data, setData] = useState(() => loadData());
+export default function ItalianTracker() {
+  const [data, setData] = useState({ done:{}, mins:{} });
+  const [loaded, setLoaded] = useState(false);
   const [activeWeek, setActiveWeek] = useState(0);
   const [saving, setSaving] = useState(false);
   const saveTimer = useRef(null);
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setData(JSON.parse(raw));
+    } catch(e) {}
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
     const today = new Date();
     const start = new Date('2025-05-27');
     const diff = Math.floor((today - start) / 86400000);
     if (diff >= 0 && diff < 84) setActiveWeek(Math.floor(diff / 7));
-  }, []);
+  }, [loaded]);
 
   const persist = useCallback((next) => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setSaving(true);
-    saveTimer.current = setTimeout(() => { saveData(next); setSaving(false); }, 400);
+    saveTimer.current = setTimeout(() => {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch(e){}
+      setSaving(false);
+    }, 600);
   }, []);
 
   const toggleDone = useCallback((wk, di) => {
@@ -189,10 +198,11 @@ export default function App() {
     setData(next); persist(next);
   }, [data, persist]);
 
-  const totalDays = weekData.slice(0,11).reduce((a,w) => a + w.days.length, 0);
+  const totalTarget = weekData.slice(0,11).reduce((a,w)=>a+w.days.reduce((b,d)=>b+d.target,0),0);
+  const totalLogged = Object.values(data.mins||{}).reduce((a,v)=>a+(v||0),0);
   const daysChecked = Object.values(data.done||{}).filter(Boolean).length;
-  const totalLogged = Object.values(data.mins||{}).reduce((a,v) => a + (v||0), 0);
-  const pct = Math.round((daysChecked / totalDays) * 100);
+  const totalDays = weekData.slice(0,11).reduce((a,w)=>a+w.days.length,0);
+  const pct = Math.round((daysChecked/totalDays)*100);
 
   const today = new Date();
   const start = new Date('2025-05-27');
@@ -201,137 +211,160 @@ export default function App() {
   const week = weekData[activeWeek];
   const ac = phaseColors[week.phase]?.accent || "#e8e8e8";
 
+  if (!loaded) return (
+    <div style={{minHeight:"100vh",background:"#0d0d1a",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{color:"#ffffff30",fontFamily:"monospace",fontSize:13,letterSpacing:3}}>loading...</div>
+    </div>
+  );
+
   return (
-    <div style={{ minHeight:"100vh", background:"#0d0d1a", fontFamily:"'DM Mono','Courier New',monospace", color:"#e8e8e8", padding:"20px 16px" }}>
+    <div style={{minHeight:"100vh",background:"#0d0d1a",fontFamily:"'DM Mono','Courier New',monospace",color:"#e8e8e8",padding:"20px 16px"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');
-        * { box-sizing: border-box; }
-        body { margin: 0; background: #0d0d1a; }
-        .wtab { background:none; border:none; cursor:pointer; font-family:'DM Mono',monospace; font-size:11px; padding:4px 8px; border-radius:6px; transition:all 0.12s; color:#e8e8e855; }
-        .wtab:hover { color:#e8e8e8; background:#ffffff0f; }
-        .wtab.on { color:#e8e8e8; background:#ffffff18; }
-        ::-webkit-scrollbar { width:3px } ::-webkit-scrollbar-thumb { background:#ffffff18; border-radius:2px }
+        *{box-sizing:border-box;}
+        .day-btn{background:#ffffff08;border:1px solid #ffffff12;border-radius:8px;padding:8px 6px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:left;width:100%;color:#e8e8e8;font-family:'DM Mono',monospace;}
+        .day-btn:hover{background:#ffffff10;border-color:#ffffff22;}
+        .day-btn.done{background:#1a3a1a;border-color:#4caf5050;}
+        .wtab{background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;padding:4px 8px;border-radius:6px;transition:all 0.12s;color:#e8e8e855;}
+        .wtab:hover{color:#e8e8e8;background:#ffffff0f;}
+        .wtab.on{color:#e8e8e8;background:#ffffff18;}
+        ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#ffffff18;border-radius:2px}
       `}</style>
-      <div style={{ maxWidth:720, margin:"0 auto" }}>
+      <div style={{maxWidth:720,margin:"0 auto"}}>
 
-        <div style={{ marginBottom:20 }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:3 }}>
-            <div style={{ fontSize:9, letterSpacing:3, color:"#e8e8e835", textTransform:"uppercase" }}>italiano · nyu placement prep</div>
-            <div style={{ fontSize:9, color:saving?"#f5a623":"#e8e8e825", transition:"color 0.3s" }}>{saving?"saving...":"saved"}</div>
+        {/* header */}
+        <div style={{marginBottom:20}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:3}}>
+            <div style={{fontSize:9,letterSpacing:3,color:"#e8e8e835",textTransform:"uppercase"}}>italiano · nyu placement prep</div>
+            <div style={{fontSize:9,color:saving?"#f5a623":"#e8e8e825",transition:"color 0.3s"}}>{saving?"saving...":"saved"}</div>
           </div>
-          <div style={{ fontSize:22, fontWeight:500, letterSpacing:-0.5, marginBottom:3 }}>11-week plan</div>
-          <div style={{ fontSize:10, color:"#e8e8e845", marginBottom:10 }}>May 27 – Aug 18 · exam window Aug 12–16</div>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:12 }}>
+          <div style={{fontSize:22,fontWeight:500,letterSpacing:-0.5,marginBottom:3}}>11-week plan</div>
+          <div style={{fontSize:10,color:"#e8e8e845",marginBottom:10}}>May 27 – Aug 18 · exam window Aug 12–16</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
             {[
-              { label:"days done", val:`${daysChecked}/${totalDays}`, sub:`${pct}%` },
-              { label:"mins logged", val:`${totalLogged}`, sub:"across all sessions" },
-              { label:"checkpoints", val:"8 tests", sub:"+ 5 mock exams" },
-            ].map(({ label, val, sub }) => (
-              <div key={label} style={{ background:"#ffffff06", border:"1px solid #ffffff0d", borderRadius:8, padding:"8px 10px" }}>
-                <div style={{ fontSize:9, color:"#e8e8e830", letterSpacing:1.5, textTransform:"uppercase", marginBottom:3 }}>{label}</div>
-                <div style={{ fontSize:14, fontWeight:500 }}>{val}</div>
-                <div style={{ fontSize:9, color:"#e8e8e840", marginTop:1 }}>{sub}</div>
+              {label:"days done", val:`${daysChecked}/${totalDays}`, sub:`${pct}%`},
+              {label:"mins logged", val:`${totalLogged}`, sub:`of ~${totalTarget} target`},
+              {label:"weekly tests", val:"8 tests", sub:"+ 5 mock exams"},
+            ].map(({label,val,sub})=>(
+              <div key={label} style={{background:"#ffffff06",border:"1px solid #ffffff0d",borderRadius:8,padding:"8px 10px"}}>
+                <div style={{fontSize:9,color:"#e8e8e830",letterSpacing:1.5,textTransform:"uppercase",marginBottom:3}}>{label}</div>
+                <div style={{fontSize:14,fontWeight:500}}>{val}</div>
+                <div style={{fontSize:9,color:"#e8e8e840",marginTop:1}}>{sub}</div>
               </div>
             ))}
           </div>
-          <div style={{ height:2, background:"#ffffff0a", borderRadius:1 }}>
-            <div style={{ height:"100%", borderRadius:1, background:"#4caf50", width:`${pct}%`, transition:"width 0.4s" }}/>
+          {/* overall progress bar */}
+          <div style={{height:2,background:"#ffffff0a",borderRadius:1}}>
+            <div style={{height:"100%",borderRadius:1,background:"#4caf50",width:`${pct}%`,transition:"width 0.4s"}}/>
           </div>
         </div>
 
-        <div style={{ display:"flex", gap:12, marginBottom:12, flexWrap:"wrap" }}>
-          {[["#4caf50","checked done"],["#f5a623","weekly test"],["#a8e063","mock exam"],["#c084fc","exam window"]].map(([c,l]) => (
-            <div key={l} style={{ display:"flex", alignItems:"center", gap:5, fontSize:9, color:"#e8e8e850" }}>
-              <div style={{ width:7, height:7, borderRadius:1, background:c, opacity:0.7 }}/>
+        {/* legend */}
+        <div style={{display:"flex",gap:12,marginBottom:12,flexWrap:"wrap"}}>
+          {[["#4caf50","checked done"],["#f5a623","weekly test"],["#a8e063","mock exam"],["#c084fc","exam window"]].map(([c,l])=>(
+            <div key={l} style={{display:"flex",alignItems:"center",gap:5,fontSize:9,color:"#e8e8e850"}}>
+              <div style={{width:7,height:7,borderRadius:1,background:c,opacity:0.7}}/>
               {l}
             </div>
           ))}
-          <div style={{ fontSize:9, color:"#e8e8e840", marginLeft:"auto" }}>tap minutes to log time</div>
+          <div style={{fontSize:9,color:"#e8e8e840",marginLeft:"auto"}}>tap minutes to log time</div>
         </div>
 
-        <div style={{ display:"flex", gap:3, flexWrap:"wrap", marginBottom:14 }}>
-          {weekData.map((w,i) => {
-            const wd = w.days.filter((_,di) => data.done[`${i}-${di}`]).length;
-            const isCur = todayIdx >= i*7 && todayIdx < (i+1)*7;
+        {/* week tabs */}
+        <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:14}}>
+          {weekData.map((w,i)=>{
+            const wd = w.days.filter((_,di)=>data.done[`${i}-${di}`]).length;
+            const isCur = todayIdx>=i*7 && todayIdx<(i+1)*7;
             return (
-              <button key={i} className={`wtab${activeWeek===i?" on":""}`} onClick={() => setActiveWeek(i)}>
+              <button key={i} className={`wtab${activeWeek===i?" on":""}`} onClick={()=>setActiveWeek(i)}>
                 {w.label}
-                {isCur && <span style={{ color:"#f5a623", marginLeft:2 }}>·</span>}
-                {wd > 0 && <span style={{ color:"#4caf5070", marginLeft:2 }}>{wd}/{w.days.length}</span>}
+                {isCur&&<span style={{color:"#f5a623",marginLeft:2}}>·</span>}
+                {wd>0&&<span style={{color:"#4caf5070",marginLeft:2}}>{wd}/{w.days.length}</span>}
               </button>
             );
           })}
         </div>
 
-        <div style={{ background:"#ffffff04", border:"1px solid #ffffff0d", borderRadius:12, padding:"14px 14px", marginBottom:12 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12, flexWrap:"wrap" }}>
-            <div style={{ fontSize:9, letterSpacing:1.5, padding:"2px 9px", border:`1px solid ${ac}30`, color:ac, borderRadius:20, textTransform:"uppercase" }}>{week.focus}</div>
-            <div style={{ fontSize:14, fontWeight:500 }}>{week.label}</div>
-            <div style={{ fontSize:10, color:"#e8e8e840" }}>{week.dateRange}</div>
-            <div style={{ marginLeft:"auto", fontSize:10, color:"#e8e8e835" }}>
-              {week.days.filter((_,di) => data.done[`${activeWeek}-${di}`]).length}/{week.days.length}
+        {/* week card */}
+        <div style={{background:"#ffffff04",border:"1px solid #ffffff0d",borderRadius:12,padding:"14px 14px",marginBottom:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,flexWrap:"wrap"}}>
+            <div style={{fontSize:9,letterSpacing:1.5,padding:"2px 9px",border:`1px solid ${ac}30`,color:ac,borderRadius:20,textTransform:"uppercase"}}>{week.focus}</div>
+            <div style={{fontSize:14,fontWeight:500}}>{week.label}</div>
+            <div style={{fontSize:10,color:"#e8e8e840"}}>{week.dateRange}</div>
+            <div style={{marginLeft:"auto",fontSize:10,color:"#e8e8e835"}}>
+              {week.days.filter((_,di)=>data.done[`${activeWeek}-${di}`]).length}/{week.days.length} done
             </div>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, marginBottom:4 }}>
-            {DAYS.map((d,i) => {
-              const gi = activeWeek*7+i;
+          {/* day column headers */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:4}}>
+            {DAYS.map((d,i)=>{
+              const gi=activeWeek*7+i;
               return (
-                <div key={d} style={{ textAlign:"center" }}>
-                  <div style={{ fontSize:9, color:"#e8e8e830", letterSpacing:0.5, marginBottom:1 }}>{d}</div>
-                  <div style={{ fontSize:9, color:gi===todayIdx?"#f5a623":"#e8e8e825" }}>{DATES[gi]||""}</div>
+                <div key={d} style={{textAlign:"center"}}>
+                  <div style={{fontSize:9,color:"#e8e8e830",letterSpacing:0.5,marginBottom:1}}>{d}</div>
+                  <div style={{fontSize:9,color:gi===todayIdx?"#f5a623":"#e8e8e825"}}>{DATES[gi]||""}</div>
                 </div>
               );
             })}
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4 }}>
-            {week.days.map((day,di) => {
-              const key = `${activeWeek}-${di}`;
-              const isDone = !!data.done[key];
-              const minsVal = data.mins[key] || 0;
-              const gi = activeWeek*7+di;
-              const isToday = gi === todayIdx;
-              const ts = typeStyles[day.type||"normal"] || {};
+          {/* day cards */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4}}>
+            {week.days.map((day,di)=>{
+              const key=`${activeWeek}-${di}`;
+              const isDone=!!data.done[key];
+              const minsVal=data.mins[key]||0;
+              const gi=activeWeek*7+di;
+              const isToday=gi===todayIdx;
+              const ts=typeStyles[day.type||"normal"]||{};
               const borderCol = isDone ? "#4caf5050" : ts.border||"#ffffff12";
               const bgCol = isDone ? "#1a3a1a" : ts.bg||"#ffffff08";
               return (
-                <div key={di} style={{ background:bgCol, border:`1px solid ${borderCol}`, borderRadius:8, padding:"7px 6px", outline:isToday&&!isDone?"1px solid #f5a62330":"none" }}>
-                  {day.type && day.type!=="normal" && (
-                    <div style={{ fontSize:8, fontWeight:500, color:isDone?"#4caf5060":ts.labelColor, letterSpacing:1, marginBottom:2 }}>{ts.label}</div>
+                <div key={di} style={{background:bgCol,border:`1px solid ${borderCol}`,borderRadius:8,padding:"7px 6px",position:"relative",outline:isToday&&!isDone?`1px solid #f5a62330`:"none"}}>
+                  {/* type badge */}
+                  {day.type&&day.type!=="normal"&&(
+                    <div style={{fontSize:8,fontWeight:500,color:isDone?"#4caf5060":ts.labelColor,letterSpacing:1,marginBottom:2}}>{ts.label}</div>
                   )}
-                  {!day.type && <div style={{ fontSize:8, color:isDone?"#4caf5050":isToday?"#f5a623":"#e8e8e825", marginBottom:2 }}>{isDone?"✓":isToday?"today":DATES[gi]||""}</div>}
+                  {/* date */}
+                  {!day.type&&<div style={{fontSize:8,color:isDone?"#4caf5050":isToday?"#f5a623":"#e8e8e825",marginBottom:2}}>{isDone?"✓":isToday?"today":DATES[gi]||""}</div>}
+                  {/* title */}
                   <div
-                    onClick={() => toggleDone(activeWeek,di)}
-                    style={{ fontSize:10, fontWeight:500, cursor:"pointer", marginBottom:3, lineHeight:1.3,
-                      color: isDone?"#4caf50aa": day.type==="exam-window"?"#c084fc": day.type==="mock"?"#a8e063": day.type==="test"?"#f5a623":"#e8e8e8" }}>
+                    onClick={()=>toggleDone(activeWeek,di)}
+                    style={{fontSize:10,fontWeight:500,color:isDone?"#4caf50aa":day.type==="exam-window"?"#c084fc":day.type==="mock"?"#a8e063":day.type==="test"?"#f5a623":"#e8e8e8",marginBottom:3,lineHeight:1.3,cursor:"pointer"}}
+                  >
                     {day.short}
                   </div>
-                  <div style={{ fontSize:9, color:isDone?"#4caf5045":"#e8e8e840", lineHeight:1.4, marginBottom:day.target>0?4:0 }}>
+                  {/* detail */}
+                  <div style={{fontSize:9,color:isDone?"#4caf5045":"#e8e8e840",lineHeight:1.4,marginBottom:day.target>0?4:0}}>
                     {day.detail}
                   </div>
-                  {day.target > 0 && <MinuteInput value={minsVal} target={day.target} onChange={v => setMins(activeWeek,di,v)} />}
+                  {/* minute logger */}
+                  {day.target>0&&(
+                    <MinuteInput value={minsVal} target={day.target} onChange={v=>setMins(activeWeek,di,v)}/>
+                  )}
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:14 }}>
+        {/* footer info */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
           {[
-            { label:"daily target", val:"90 min" },
-            { label:"core tools", val:"Babbel · CBT · Anki" },
-            { label:"speaking wk 5+", val:"iTalki 2x/wk" },
-          ].map(({ label, val }) => (
-            <div key={label} style={{ background:"#ffffff04", border:"1px solid #ffffff0c", borderRadius:8, padding:"8px 10px" }}>
-              <div style={{ fontSize:9, color:"#e8e8e830", letterSpacing:1.5, textTransform:"uppercase", marginBottom:3 }}>{label}</div>
-              <div style={{ fontSize:10, color:"#e8e8e8aa" }}>{val}</div>
+            {label:"daily target",val:"90 min"},
+            {label:"core tools",val:"Babbel · CBT · Anki"},
+            {label:"speaking wk 5+",val:"iTalki 2x/wk"},
+          ].map(({label,val})=>(
+            <div key={label} style={{background:"#ffffff04",border:"1px solid #ffffff0c",borderRadius:8,padding:"8px 10px"}}>
+              <div style={{fontSize:9,color:"#e8e8e830",letterSpacing:1.5,textTransform:"uppercase",marginBottom:3}}>{label}</div>
+              <div style={{fontSize:10,color:"#e8e8e8aa"}}>{val}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ borderTop:"1px solid #ffffff08", paddingTop:10 }}>
-          <div style={{ fontSize:9, color:"#e8e8e820" }}>saves to localStorage · never resets · tap day title to check off · tap minutes to log time</div>
+        <div style={{borderTop:"1px solid #ffffff08",paddingTop:10}}>
+          <div style={{fontSize:9,color:"#e8e8e820",letterSpacing:0.5}}>auto-saves permanently · never resets · tap day title to check off · tap minutes to log time · gold dot = today</div>
         </div>
       </div>
     </div>
