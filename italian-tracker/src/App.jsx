@@ -230,7 +230,7 @@ export default function ItalianTracker() {
         .wtab.on{color:#e8e8e8;background:#ffffff18;}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#ffffff18;border-radius:2px}
       `}</style>
-      <div style={{maxWidth:720,margin:"0 auto"}}>
+      <div style={{margin:"0 auto"}}>
 
         {/* header */}
         <div style={{marginBottom:20}}>
