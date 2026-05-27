@@ -371,6 +371,35 @@ export default function App() {
           ))}
         </div>
 
+        {/* quick links */}
+        <div style={{ marginBottom:20 }}>
+          <div style={{ fontSize:10, color:"#e8e8e870", letterSpacing:2, textTransform:"uppercase", marginBottom:12 }}>quick links</div>
+          <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+            {[
+              { label:"Babbel", url:"https://www.babbel.com", color:"#e94560" },
+              { label:"Coffee Break Italian", url:"https://coffeebreaklanguages.com/coffeebreakitalian", color:"#53c0f0" },
+              { label:"Anki", url:"https://apps.ankiweb.net", color:"#f5a623" },
+              { label:"iTalki", url:"https://www.italki.com", color:"#a8e063" },
+              { label:"Italian Grammar in Practice", url:"https://www.amazon.com/s?k=italian+grammar+in+practice+alma+edizioni", color:"#c084fc" },
+              { label:"NYU Placement Exam", url:"https://cas.nyu.edu/academic-programs/academic-success/placementexams.html", color:"#f472b6" },
+            ].map(({ label, url, color }) => (
+              <a key={label} href={url} target="_blank" rel="noopener noreferrer"
+                style={{
+                  display:"inline-flex", alignItems:"center", gap:6,
+                  padding:"8px 16px", borderRadius:8,
+                  border:`1px solid ${color}30`, background:`${color}0d`,
+                  color, fontSize:13, fontFamily:"'DM Mono',monospace",
+                  textDecoration:"none", transition:"background 0.15s, border-color 0.15s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background=`${color}22`; e.currentTarget.style.borderColor=`${color}55`; }}
+                onMouseLeave={e => { e.currentTarget.style.background=`${color}0d`; e.currentTarget.style.borderColor=`${color}30`; }}
+              >
+                {label} ↗
+              </a>
+            ))}
+          </div>
+        </div>
+
         <div style={{ fontSize:11, color:"#e8e8e870" }}>
           saves to localStorage · never resets · click day title to check off · click time to log minutes
         </div>
