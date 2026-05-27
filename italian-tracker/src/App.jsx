@@ -120,7 +120,7 @@ const phaseColors = { 1:{accent:"#e94560"}, 2:{accent:"#53c0f0"}, 3:{accent:"#f5
 const typeStyles = {
   test:{ border:"#f5a62344", bg:"#f5a6230a", label:"TEST", labelColor:"#f5a623" },
   mock:{ border:"#a8e06344", bg:"#a8e0630a", label:"MOCK", labelColor:"#a8e063" },
-  rest:{ border:"#ffffff14", bg:"transparent", label:"REST", labelColor:"#e8e8e835" },
+  rest:{ border:"#ffffff14", bg:"transparent", label:"REST", labelColor:"#e8e8e895" },
   "exam-window":{ border:"#c084fc44", bg:"#c084fc0a", label:"EXAM", labelColor:"#c084fc" },
 };
 
@@ -140,9 +140,9 @@ function MinuteInput({ value, onChange, target }) {
   const over = target > 0 && mins >= target;
   return (
     <div onClick={() => { setTmp(value||""); setEditing(true); }}
-      style={{ cursor:"pointer", fontSize:12, color: over?"#4caf50": mins>0?"#f5a623":"#e8e8e828", textAlign:"center", paddingTop:4 }}>
+      style={{ cursor:"pointer", fontSize:12, color: over?"#4caf50": mins>0?"#f5a623":"#e8e8e888", textAlign:"center", paddingTop:4 }}>
       {mins > 0 ? `${mins}min` : target > 0 ? "log time" : ""}
-      {target > 0 && <span style={{ color:"#e8e8e820", fontSize:11 }}>/{target}</span>}
+      {target > 0 && <span style={{ color:"#e8e8e870", fontSize:11 }}>/{target}</span>}
     </div>
   );
 }
@@ -228,11 +228,11 @@ export default function App() {
         {/* header */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: 6 }}>
-            <span style={{ fontSize:11, letterSpacing:3, color:"#e8e8e830", textTransform:"uppercase" }}>italiano · nyu placement prep</span>
-            <span style={{ fontSize:11, color: saving?"#f5a623":"#e8e8e825", transition:"color 0.3s" }}>{saving ? "saving..." : "saved"}</span>
+            <span style={{ fontSize:11, letterSpacing:3, color:"#e8e8e890", textTransform:"uppercase" }}>italiano · nyu placement prep</span>
+            <span style={{ fontSize:11, color: saving?"#f5a623":"#e8e8e888", transition:"color 0.3s" }}>{saving ? "saving..." : "saved"}</span>
           </div>
           <h1 style={{ fontSize:36, fontWeight:500, letterSpacing:-1, marginBottom:6, color:"#e8e8e8" }}>11-week plan</h1>
-          <div style={{ fontSize:13, color:"#e8e8e848", marginBottom:20 }}>May 27 – Aug 18 · exam window Aug 12–16</div>
+          <div style={{ fontSize:13, color:"#e8e8e8cc", marginBottom:20 }}>May 27 – Aug 18 · exam window Aug 12–16</div>
 
           {/* stat cards */}
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, marginBottom:16 }}>
@@ -242,9 +242,9 @@ export default function App() {
               { label:"checkpoints", val:"8 tests", sub:"+ 5 mock exams" },
             ].map(({ label, val, sub }) => (
               <div key={label} style={{ background:"#ffffff07", border:"1px solid #ffffff0f", borderRadius:10, padding:"14px 18px" }}>
-                <div style={{ fontSize:10, color:"#e8e8e830", letterSpacing:2, textTransform:"uppercase", marginBottom:6 }}>{label}</div>
+                <div style={{ fontSize:10, color:"#e8e8e890", letterSpacing:2, textTransform:"uppercase", marginBottom:6 }}>{label}</div>
                 <div style={{ fontSize:22, fontWeight:500, marginBottom:3 }}>{val}</div>
-                <div style={{ fontSize:11, color:"#e8e8e840" }}>{sub}</div>
+                <div style={{ fontSize:11, color:"#e8e8e8cc" }}>{sub}</div>
               </div>
             ))}
           </div>
@@ -258,12 +258,12 @@ export default function App() {
         {/* legend */}
         <div style={{ display:"flex", gap:20, marginBottom:16, flexWrap:"wrap", alignItems:"center" }}>
           {[["#4caf50","checked done"],["#f5a623","weekly test"],["#a8e063","mock exam"],["#c084fc","exam window"]].map(([c,l]) => (
-            <div key={l} style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#e8e8e855" }}>
+            <div key={l} style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#e8e8e8bb" }}>
               <div style={{ width:9, height:9, borderRadius:2, background:c, opacity:0.8 }}/>
               {l}
             </div>
           ))}
-          <span style={{ fontSize:11, color:"#e8e8e830", marginLeft:"auto" }}>click title to check · click time to log</span>
+          <span style={{ fontSize:11, color:"#e8e8e890", marginLeft:"auto" }}>click title to check · click time to log</span>
         </div>
 
         {/* week tabs */}
@@ -287,8 +287,8 @@ export default function App() {
           <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18, flexWrap:"wrap" }}>
             <span style={{ fontSize:11, letterSpacing:2, padding:"4px 12px", border:`1px solid ${ac}30`, color:ac, borderRadius:20, textTransform:"uppercase" }}>{week.focus}</span>
             <span style={{ fontSize:18, fontWeight:500 }}>{week.label}</span>
-            <span style={{ fontSize:13, color:"#e8e8e840" }}>{week.dateRange}</span>
-            <span style={{ marginLeft:"auto", fontSize:13, color:"#e8e8e835" }}>
+            <span style={{ fontSize:13, color:"#e8e8e8cc" }}>{week.dateRange}</span>
+            <span style={{ marginLeft:"auto", fontSize:13, color:"#e8e8e895" }}>
               {week.days.filter((_,di) => data.done[`${activeWeek}-${di}`]).length}/{week.days.length} done
             </span>
           </div>
@@ -299,8 +299,8 @@ export default function App() {
               const gi = activeWeek*7+i;
               return (
                 <div key={d} style={{ textAlign:"center" }}>
-                  <div style={{ fontSize:11, color:"#e8e8e830", letterSpacing:1, marginBottom:3 }}>{d}</div>
-                  <div style={{ fontSize:12, color: gi===todayIdx ? "#f5a623" : "#e8e8e828" }}>{DATES[gi]||""}</div>
+                  <div style={{ fontSize:11, color:"#e8e8e890", letterSpacing:1, marginBottom:3 }}>{d}</div>
+                  <div style={{ fontSize:12, color: gi===todayIdx ? "#f5a623" : "#e8e8e888" }}>{DATES[gi]||""}</div>
                 </div>
               );
             })}
@@ -315,15 +315,15 @@ export default function App() {
               const gi = activeWeek*7+di;
               const isToday = gi === todayIdx;
               const ts = typeStyles[day.type||"normal"] || {};
-              const borderCol = isDone ? "#4caf5055" : isToday ? "#f5a62340" : ts.border||"#ffffff14";
+              const borderCol = isDone ? "#4caf50aa" : isToday ? "#f5a62340" : ts.border||"#ffffff14";
               const bgCol = isDone ? "#1c3a1c" : ts.bg||"#ffffff07";
 
               return (
                 <div key={di} className="day-card" style={{ background:bgCol, border:`1px solid ${borderCol}` }}>
                   {/* type badge or date */}
                   {day.type && day.type !== "normal"
-                    ? <div style={{ fontSize:10, fontWeight:500, letterSpacing:1.5, color: isDone?"#4caf5055":ts.labelColor, marginBottom:6, textTransform:"uppercase" }}>{ts.label}</div>
-                    : <div style={{ fontSize:11, color: isDone?"#4caf5050": isToday?"#f5a623":"#e8e8e825", marginBottom:6 }}>{isDone ? "✓ done" : isToday ? "today" : DATES[gi]||""}</div>
+                    ? <div style={{ fontSize:10, fontWeight:500, letterSpacing:1.5, color: isDone?"#4caf50aa":ts.labelColor, marginBottom:6, textTransform:"uppercase" }}>{ts.label}</div>
+                    : <div style={{ fontSize:11, color: isDone?"#4caf5099": isToday?"#f5a623":"#e8e8e888", marginBottom:6 }}>{isDone ? "✓ done" : isToday ? "today" : DATES[gi]||""}</div>
                   }
 
                   {/* title — click to check */}
@@ -343,7 +343,7 @@ export default function App() {
                   </div>
 
                   {/* detail */}
-                  <div style={{ fontSize:12, color: isDone?"#4caf5045":"#e8e8e848", lineHeight:1.55, marginBottom: day.target>0 ? 8 : 0 }}>
+                  <div style={{ fontSize:12, color: isDone?"#4caf5099":"#e8e8e8cc", lineHeight:1.55, marginBottom: day.target>0 ? 8 : 0 }}>
                     {day.detail}
                   </div>
 
@@ -365,13 +365,13 @@ export default function App() {
             { label:"speaking wk 5+", val:"iTalki 2x/wk" },
           ].map(({ label, val }) => (
             <div key={label} style={{ background:"#ffffff05", border:"1px solid #ffffff0e", borderRadius:10, padding:"12px 16px" }}>
-              <div style={{ fontSize:10, color:"#e8e8e828", letterSpacing:2, textTransform:"uppercase", marginBottom:5 }}>{label}</div>
-              <div style={{ fontSize:14, color:"#e8e8e8aa" }}>{val}</div>
+              <div style={{ fontSize:10, color:"#e8e8e888", letterSpacing:2, textTransform:"uppercase", marginBottom:5 }}>{label}</div>
+              <div style={{ fontSize:14, color:"#e8e8e8cc" }}>{val}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ fontSize:11, color:"#e8e8e820" }}>
+        <div style={{ fontSize:11, color:"#e8e8e870" }}>
           saves to localStorage · never resets · click day title to check off · click time to log minutes
         </div>
       </div>
