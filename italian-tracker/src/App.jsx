@@ -137,7 +137,7 @@ When the student tells you what they did for a day, you should:
 You also answer general Italian learning questions, grammar questions, and study strategy questions.`;
 
 async function callClaude(messages) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -158,7 +158,7 @@ What the student actually did: "${userText}"
 
 Did they complete the task? Should the day be marked done? Reply with JSON only: {"done": true/false, "feedback": "1-2 sentence feedback"}`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
